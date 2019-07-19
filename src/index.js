@@ -19,12 +19,12 @@ function removeByLetter(letter, arr) {
     return arr; 
 }
 
-function drawCards() {
-    return tileDistribution.splice(0,7); 
+function drawCards(x) {
+    return tileDistribution.splice(0,x); 
 }
 
-let yourHand = drawCards();  
-let oppHand = drawCards(); 
+let yourHand = drawCards(7);  
+let oppHand = drawCards(7); 
 
 const yhand = document.createElement('div');
 yhand.className = 'hand';
@@ -35,33 +35,33 @@ ohand.className = 'hand';
 ohand.id = 'opp-hand';
 
 
-function disableYourHand() {
-    const h1 = document.getElementById('your-hand');
-    const childNodes = h1.childNodes; 
-    for (let i = 0; i < childNodes.length; i++) {
-        childNodes[i].setAttribute('draggable', false); 
-    }
+// function disableYourHand() {
+//     const h1 = document.getElementById('your-hand');
+//     const childNodes = h1.childNodes; 
+//     for (let i = 0; i < childNodes.length; i++) {
+//         childNodes[i].setAttribute('draggable', false); 
+//     }
 
-    const h2 = document.getElementById('opp-hand'); 
-    const childNodes2 = h2.childNodes;
-    for (let i = 0; i < childNodes2.length; i++) {
-        childNodes2[i].setAttribute('draggable', true);
-    }
-}
+//     const h2 = document.getElementById('opp-hand'); 
+//     const childNodes2 = h2.childNodes;
+//     for (let i = 0; i < childNodes2.length; i++) {
+//         childNodes2[i].setAttribute('draggable', true);
+//     }
+// }
 
-function disableOppHand() {
-    const h1 = document.getElementById('your-hand');
-    const childNodes = h1.childNodes;
-    for (let i = 0; i < childNodes.length; i++) {
-        childNodes[i].setAttribute('draggable', true);
-    }
+// function disableOppHand() {
+//     const h1 = document.getElementById('your-hand');
+//     const childNodes = h1.childNodes;
+//     for (let i = 0; i < childNodes.length; i++) {
+//         childNodes[i].setAttribute('draggable', true);
+//     }
 
-    const h2 = document.getElementById('opp-hand');
-    const childNodes2 = h2.childNodes;
-    for (let i = 0; i < childNodes2.length; i++) {
-        childNodes2[i].setAttribute('draggable', false);
-    }
-}
+//     const h2 = document.getElementById('opp-hand');
+//     const childNodes2 = h2.childNodes;
+//     for (let i = 0; i < childNodes2.length; i++) {
+//         childNodes2[i].setAttribute('draggable', false);
+//     }
+// }
 
 function createYourHand() {
     
@@ -70,6 +70,11 @@ function createYourHand() {
         tile.className = 'hand-tile-you';
         tile.id = `hand-tile-${i}`;
         tile.innerHTML = yourHand[i].letter;
+
+        // Trying to make the blank tile editable 
+        if (tile.innerHTML === ' ') {
+            tile.setAttribute('contenteditable', true); 
+        }
 
         const points = document.createElement('span');
         points.innerHTML = `${yourHand[i].points}`;
@@ -85,13 +90,6 @@ function createYourHand() {
             // }, 1); 
         })
         yhand.append(tile);
-    }
-
-    if (yourHand.length === 0) {
-        const tile = document.createElement('div'); 
-        tile.className = 'hand-tile-hidden'; 
-        tile.innerHTML = 'B'; 
-        yhand.append(tile); 
     }
 }
 
@@ -111,7 +109,7 @@ function createOppHand() {
         tile.appendChild(points);
 
         // Draggable will be set to true or false depending on whose turn it is 
-        tile.setAttribute('draggable', false);
+        tile.setAttribute('draggable', true);
 
         tile.addEventListener('dragstart', function (e) {
             e.dataTransfer.setData('text', e.target.innerHTML);
@@ -120,13 +118,6 @@ function createOppHand() {
             //     e.target.style.visibility = "hidden";  
             // }, 1); 
         })
-        ohand.append(tile);
-    }
-
-    if (oppHand.length === 0) {
-        const tile = document.createElement('div');
-        tile.className = 'hand-tile-hidden';
-        tile.innerHTML = 'B';
         ohand.append(tile);
     }
 }
@@ -163,6 +154,7 @@ for (let i = 1; i <= 15; i++) {
                 const team = temp[temp.length - 1];
 
                 e.target.innerHTML = scrabbleText;
+
                 e.target.style.background = 'rgb(142, 207, 242)';
                 e.target.addEventListener('onmousedown', () => { return false })
 
@@ -217,24 +209,32 @@ const ybutton = document.createElement('button');
 ybutton.className = 'submit-button'; 
 ybutton.innerHTML = 'Submit'; 
 ybutton.addEventListener('click', () => {
-    disableYourHand(); 
-    console.log('you moved'); 
-    yourHand = drawCards(); 
+    // disableYourHand(); 
+    console.log('you moved');
+    console.log(yourHand);  
+    yourHand = yourHand.concat(drawCards(7 - yourHand.length)); 
     console.log(yourHand); 
+    const blah = document.getElementById('your-hand');
+    while (blah.firstChild) {
+        blah.removeChild(blah.firstChild);
+    }
     createYourHand(); 
-    console.log(tileDistribution); 
 })
 
 const obutton = document.createElement('button'); 
 obutton.className = 'submit-button'; 
 obutton.innerHTML = 'Submit'; 
 obutton.addEventListener('click', () => {
-    disableOppHand(); 
+    // disableOppHand(); 
     console.log('opp moved'); 
-    oppHand = drawCards(); 
     console.log(oppHand); 
+    oppHand = oppHand.concat(drawCards(7 - oppHand.length)); 
+    console.log(oppHand); 
+    const blah2 = document.getElementById('opp-hand');
+    while (blah2.firstChild) {
+        blah2.removeChild(blah2.firstChild);
+    }
     createOppHand(); 
-    console.log(tileDistribution); 
 })
 
 

@@ -67,8 +67,8 @@ export const addL2 = (square, i, j) => {
 export const star = (square, i, j) => {
     if (i === 8 && j === 8) {
         square.className += ' star';
-        const star = document.createElement('i');
-        star.className = 'fas fa-star';
-        square.appendChild(star);
+        // const star = document.createElement('i');
+        // star.className = 'fas fa-star';
+        // square.appendChild(star);
     }
 }

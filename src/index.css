@@ -22,6 +22,10 @@
     transform: translateY(5px);  
 }
 
+#your-hand, #opp-hand {
+    height: 30px; 
+}
+
 .hand-tile-you, .hand-tile-opp {
     padding: 0.25rem; 
     border: 1px solid black;
@@ -90,5 +94,4 @@
 }
 .star {
     background: pink; 
-    font-size: 1.3rem; 
 }

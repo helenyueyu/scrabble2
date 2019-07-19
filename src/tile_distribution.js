@@ -54,7 +54,7 @@ generateTile(1, 'Q', 10);
 generateTile(1, 'Z', 10); 
 
 // 0 point letters 
-generateTile(2, '', ''); 
+generateTile(2, ' ', ' '); 
 
 
 function shuffle(array) {
