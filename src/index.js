@@ -5,7 +5,7 @@ import { addW2, addW3, addL2, addL3, star } from './squares';
 // console.log(tileDistribution); 
 
 
-let yourTurn = true; 
+const yourTurn = true; 
 
 const playedTilesInTurn = []; 
 
@@ -19,8 +19,12 @@ function removeByLetter(letter, arr) {
     return arr; 
 }
 
-let yourHand = tileDistribution.splice(0,7); 
-let oppHand = tileDistribution.splice(0,7); 
+function drawCards() {
+    return tileDistribution.splice(0,7); 
+}
+
+let yourHand = drawCards();  
+let oppHand = drawCards(); 
 
 const yhand = document.createElement('div');
 yhand.className = 'hand';
@@ -29,6 +33,35 @@ yhand.id = 'your-hand';
 const ohand = document.createElement('div');
 ohand.className = 'hand'; 
 ohand.id = 'opp-hand';
+
+
+function disableYourHand() {
+    const h1 = document.getElementById('your-hand');
+    const childNodes = h1.childNodes; 
+    for (let i = 0; i < childNodes.length; i++) {
+        childNodes[i].setAttribute('draggable', false); 
+    }
+
+    const h2 = document.getElementById('opp-hand'); 
+    const childNodes2 = h2.childNodes;
+    for (let i = 0; i < childNodes2.length; i++) {
+        childNodes2[i].setAttribute('draggable', true);
+    }
+}
+
+function disableOppHand() {
+    const h1 = document.getElementById('your-hand');
+    const childNodes = h1.childNodes;
+    for (let i = 0; i < childNodes.length; i++) {
+        childNodes[i].setAttribute('draggable', true);
+    }
+
+    const h2 = document.getElementById('opp-hand');
+    const childNodes2 = h2.childNodes;
+    for (let i = 0; i < childNodes2.length; i++) {
+        childNodes2[i].setAttribute('draggable', false);
+    }
+}
 
 function createYourHand() {
     
@@ -44,7 +77,6 @@ function createYourHand() {
         tile.appendChild(points);
 
         tile.setAttribute('draggable', true);
-
         tile.addEventListener('dragstart', function (e) {
             e.dataTransfer.setData('text', e.target.innerHTML);
             e.dataTransfer.setData('team', e.target.className); 
@@ -185,14 +217,24 @@ const ybutton = document.createElement('button');
 ybutton.className = 'submit-button'; 
 ybutton.innerHTML = 'Submit'; 
 ybutton.addEventListener('click', () => {
-    yourTurn = false; 
+    disableYourHand(); 
+    console.log('you moved'); 
+    yourHand = drawCards(); 
+    console.log(yourHand); 
+    createYourHand(); 
+    console.log(tileDistribution); 
 })
 
 const obutton = document.createElement('button'); 
 obutton.className = 'submit-button'; 
 obutton.innerHTML = 'Submit'; 
 obutton.addEventListener('click', () => {
-    yourTurn = true; 
+    disableOppHand(); 
+    console.log('opp moved'); 
+    oppHand = drawCards(); 
+    console.log(oppHand); 
+    createOppHand(); 
+    console.log(tileDistribution); 
 })
 
 
