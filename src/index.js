@@ -1,23 +1,35 @@
 require('./index.css'); 
 import tileDistribution from './tile_distribution'; 
 import { addW2, addW3, addL2, addL3, star } from './squares'; 
+import { clearW2, clearW3, clearL2, clearL3 } from './undo_actions'; 
 
 // console.log(tileDistribution); 
 
 
 const yourTurn = true; 
 
-const playedTilesInTurn = []; 
+let playedTiles = []; 
+let playedTilesPositions = []; 
+
+function isArrayInArray(arr, item) {
+    const item_as_string = JSON.stringify(item); 
+
+    const contains = arr.some(function(el){
+        return JSON.stringify(el) === item_as_string; 
+    })
+    return contains; 
+}
 
 function removeByLetter(letter, arr) {
     for (let i = 0; i < arr.length; i++) {
         if (arr[i].letter === letter) {
-            arr.splice(i, 1); 
+            playedTiles = playedTiles.concat(arr.splice(i, 1));
             break; 
         }
     }
     return arr; 
 }
+
 
 function drawCards(x) {
     return tileDistribution.splice(0,x); 
@@ -71,11 +83,7 @@ function createYourHand() {
         tile.id = `hand-tile-${i}`;
         tile.innerHTML = yourHand[i].letter;
 
-        // Trying to make the blank tile editable 
-        if (tile.innerHTML === ' ') {
-            tile.setAttribute('contenteditable', true); 
-        }
-
+        // Trying to make the blank tile editable
         const points = document.createElement('span');
         points.innerHTML = `${yourHand[i].points}`;
         points.className = 'points';
@@ -152,8 +160,20 @@ for (let i = 1; i <= 15; i++) {
                 const scrabbleText = e.dataTransfer.getData('text');
                 const temp = e.dataTransfer.getData('team').split('-');
                 const team = temp[temp.length - 1];
-
+                
                 e.target.innerHTML = scrabbleText;
+                // console.log('the length of the letter is ' + `${e.target.innerHTML[0] === ' '}`); 
+          
+                if (e.target.innerHTML[0] === ' ') {
+                    e.preventDefault(); 
+                    e.target.setAttribute('contenteditable', true);
+                    e.target.setAttribute('onkeypress', "return (this.innerText.length < 1)"); 
+                    e.target.style.background = 'rgb(230, 238, 156)'; 
+                    e.target.style.textTransform = 'uppercase'; 
+                    e.target.className += ' blank-tile'; 
+                } 
+
+
 
                 e.target.style.background = 'rgb(142, 207, 242)';
                 e.target.addEventListener('onmousedown', () => { return false })
@@ -162,7 +182,8 @@ for (let i = 1; i <= 15; i++) {
 
                 if (team === 'you') {
                     removeByLetter(droppedLetter, yourHand);
-                    console.log(yourHand);
+                    console.log(yourHand); 
+                    console.log(playedTiles); 
                 } else {
                     removeByLetter(droppedLetter, oppHand);
                     console.log(oppHand);
@@ -186,6 +207,9 @@ for (let i = 1; i <= 15; i++) {
                 } else {
                     createOppHand();
                 }
+                const row_column = (e.target.className.split(' ')[0].split('_').slice(1)).map(x => parseInt(x))
+                playedTilesPositions.push(row_column); 
+                console.log(playedTilesPositions); 
 
                 console.log(scrabbleText[0]); 
             }
@@ -208,6 +232,11 @@ document.body.appendChild(board);
 const ybutton = document.createElement('button'); 
 ybutton.className = 'submit-button'; 
 ybutton.innerHTML = 'Submit'; 
+
+const undobutton_y = document.createElement('button'); 
+undobutton_y.className = 'undo-button'; 
+undobutton_y.innerHTML = 'Undo'; 
+
 ybutton.addEventListener('click', () => {
     // disableYourHand(); 
     console.log('you moved');
@@ -221,9 +250,59 @@ ybutton.addEventListener('click', () => {
     createYourHand(); 
 })
 
+undobutton_y.addEventListener('click', () => {
+    undoYourMove(); 
+})
+
+
+function undoYourMove() {
+    console.log('hey there')
+    console.log(playedTilesPositions); 
+
+    const board = document.getElementById('board'); 
+    for (let i = 0; i < board.childNodes.length; i++) {
+        for (let j = 0; j < board.childNodes[i].childNodes.length; j++) {
+ 
+
+            if (isArrayInArray(playedTilesPositions, [i + 1, j + 1])) {
+                // const node = board.childNodes[i].childNodes[j]; 
+                // node.style.background = ""; 
+                const node = board.childNodes[i].childNodes[j]; 
+                node.style.background=""; 
+                node.classList.remove('on'); 
+                node.innerHTML = ""; 
+                node.setAttribute('taken', 'false'); 
+                clearW3(node, i+1, j+1); 
+                clearW2(node, i+1, j+1); 
+                clearL3(node, i+1, j+1); 
+                clearL2(node, i+1, j+1); 
+                // node.setAttribute('taken', 'false'); 
+                // node.style.background = ""; 
+                // node.innerHTML = '3W'; 
+
+                // board.childNodes[i].childNodes[j].setAttribute('taken', 'false');
+                // board.childNodes[i].childNodes[j].style.background = ""; 
+                // board.childNodes[i].childNodes[j].innerHTML = '3W';
+                // board.childNodes[i].childNodes[j].classList.remove('on'); 
+            }
+        }
+    }
+
+    const blah = document.getElementById('your-hand');
+    while (blah.firstChild) {
+        blah.removeChild(blah.firstChild);
+    }
+    // console.log(playedTiles); 
+    yourHand = yourHand.concat(playedTiles);
+    playedTiles = []; 
+    createYourHand(); 
+}
+
+
 const obutton = document.createElement('button'); 
 obutton.className = 'submit-button'; 
 obutton.innerHTML = 'Submit'; 
+
 obutton.addEventListener('click', () => {
     // disableOppHand(); 
     console.log('opp moved'); 
@@ -242,6 +321,7 @@ const yhandLabel = document.createElement('span');
 yhandLabel.innerHTML = 'Your Hand'; 
 document.body.appendChild(yhandLabel); 
 document.body.appendChild(ybutton); 
+document.body.appendChild(undobutton_y); 
 document.body.appendChild(yhand); 
 
 const ohandLabel = document.createElement('span'); 
@@ -249,7 +329,6 @@ ohandLabel.innerHTML = "Opponent's Hand";
 document.body.appendChild(ohandLabel); 
 document.body.appendChild(obutton); 
 document.body.appendChild(ohand); 
-
 
 
 
