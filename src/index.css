@@ -1,3 +1,7 @@
+#board {
+    display: flex; 
+}
+
 .submit-button {
     background: pink; 
     border: none; 
@@ -63,7 +67,7 @@
 
 
 .row {
-    display: flex; 
+    display: block; 
 }
 
 .box {
